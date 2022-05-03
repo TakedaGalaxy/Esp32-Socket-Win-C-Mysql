@@ -58,7 +58,7 @@ int main() {
     hints.ai_flags = AI_PASSIVE;
 
     //Provendo o ip e a porta para ser usada pelo servidor
-    iResult = getaddrinfo("127.0.0.2", DEFAULT_PORT, &hints, &result);
+    iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
 
     if (iResult != 0) {
 

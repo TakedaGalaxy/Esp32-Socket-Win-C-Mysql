@@ -153,9 +153,11 @@
   <ItemGroup>
     <ClCompile Include="Banco De Dados.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Utilidades.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Banco De Dados.hpp" />
+    <ClInclude Include="Utilidades.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

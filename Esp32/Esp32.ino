@@ -1,8 +1,15 @@
 #include <WiFi.h>
 
+//Definição do botão usado para enviar dados
+#define BOTAO_PINO  15
+#define BOTAO       !digitalRead(BOTAO_PINO)
+
+//Definindo pino analogico para captura de dados
+#define CAPTURA_POT analogRead(34)
+
 //Definições da senha e identificador da rede Wifi
-#define SSID ""
-#define PASSWD ""
+#define SSID        ""
+#define PASSWD      ""
 
 //Armazena o ip e porta da interface socket para bando de dados
 const char * socketIp = "";
@@ -28,6 +35,9 @@ void setup() {
   Serial.print("\nIP: ");
   Serial.println(WiFi.localIP());
 
+  //Configurando periferico
+  pinMode(BOTAO_PINO, INPUT_PULLUP);
+  
 }
 
 void loop() {
@@ -75,6 +85,8 @@ void loop() {
   //Verifica se algum dado do socket está pronto para ser lido
   if (client.available()) {
 
+    Serial.printf("\nDados Recebidos\n");
+    
     while (client.available()) {
 
       char c = client.read();
@@ -86,6 +98,19 @@ void loop() {
 
     }
 
+    Serial.print('\n');
+    
+  }
+
+  //Enviando dados do potenciometro para socket
+  if(BOTAO){
+
+    while(BOTAO);
+
+    client.printf("ID:TESTE,VALOR:%d,TIPO:ANALOGICO",CAPTURA_POT);
+
+    delay(200);
+    
   }
 
 }

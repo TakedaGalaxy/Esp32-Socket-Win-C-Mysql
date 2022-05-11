@@ -6,10 +6,8 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
-#include <stdio.h>
 
 #include <iostream>
-#include <string>
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -17,6 +15,8 @@
 #define DEFAULT_BUFLEN 512
 
 #include "Banco De Dados.hpp"
+#include "Utilidades.hpp"
+
 
 int main() {
 
@@ -36,7 +36,7 @@ int main() {
     //Checando o resultado
     if (iResult != 0) {
 
-        printf("WSAStartup falhou codigo : %d ", iResult);
+        std::cout << "WSAStartup falhou codigo : " << iResult << std::endl;
 
         return 1;
 
@@ -64,7 +64,7 @@ int main() {
 
     if (iResult != 0) {
 
-        printf("getaddrinfo falhou : %d\n", iResult);
+        std::cout << "getaddrinfo falhou : " << iResult << std::endl;
         
         WSACleanup();
         
@@ -79,7 +79,7 @@ int main() {
 
     if (ListenSocket == INVALID_SOCKET){
 
-        printf("Erro ao inicializar socket : %d", WSAGetLastError());
+        std::cout << "Erro ao inicializar socket : " << WSAGetLastError() << std::endl;
         
         freeaddrinfo(result);
         
@@ -94,7 +94,7 @@ int main() {
     
     if (iResult == SOCKET_ERROR) {
         
-        printf("Bind falhou : %d\n", WSAGetLastError());
+        std::cout << "Bind falhou : " << WSAGetLastError() << std::endl;
         
         freeaddrinfo(result);
         
@@ -114,7 +114,7 @@ int main() {
     //SOMAXCONN quantidade de conxões maximas
     if (listen(ListenSocket, SOMAXCONN) == SOCKET_ERROR) {
         
-        printf("Erro ao escutar socket : %ld\n", WSAGetLastError());
+        std::cout << "Erro ao escutar socket : " << WSAGetLastError() << std::endl;
         
         closesocket(ListenSocket);
         WSACleanup();
@@ -132,7 +132,7 @@ int main() {
     
     if (ClientSocket == INVALID_SOCKET) {
         
-        printf("Conexão nao aceita: %d\n", WSAGetLastError());
+        std::cout << "Conexão nao aceita : " << WSAGetLastError() << std::endl;
         
         closesocket(ListenSocket);
         WSACleanup();
@@ -162,36 +162,42 @@ int main() {
         //Verificando se foi recebido com sucesso
         if (iResult > 0) {
 
-            printf("Foram recebidos %d Bytes\n", iResult);
-            
-            printf("Dados :\n");
+            std::cout << "Foram recebidos " << iResult << " Bytes " << std::endl;
+
+            std::cout << "Dados : Inicio" << std::endl;
 
             for (int i = 0; i < iResult; i++)std::cout << recvbuf[i];
-            
-            std::cout << '\n';
+
+            std::cout << "\nDados : Fim" << std::endl;
+
+            // --- Enviando para banco de dados ---
+
+            enviaDadosDB(decodificadorDados(recvbuf, iResult));
 
             //Renviando os dados recebidos para o cliente
             iSendResult = send(ClientSocket, recvbuf, iResult, 0);
-            
+
             if (iSendResult == SOCKET_ERROR) {
 
-                printf("Erro ao enviar dados para cliente : %d\n", WSAGetLastError());
+                std::cout << "Erro ao enviar dados para o cliente : " << WSAGetLastError() << std::endl;
                 
                 closesocket(ClientSocket);
                 WSACleanup();
-                
+
                 return 1;
-            
+
             }
-            printf("Foram enviados %d Bytes\n", iSendResult);
+
+            std::cout << "Foram enviados " << iSendResult << " Bytes para o cliente" << std::endl;
+
         }
         else if (iResult == 0) //Verificando se a conexão foi fechada pelo cliente
 
-            printf("Conexao fechada !\n");
-        
+            std::cout << "Conexao fechada !" << std::endl;
+            
         else {
 
-            printf("Recebimentos de dados falhou : %d\n", WSAGetLastError());
+            std::cout << "Recebimentos de dados falahou : " << WSAGetLastError();
 
             closesocket(ClientSocket);
             WSACleanup();
@@ -203,5 +209,7 @@ int main() {
     } while (iResult > 0);
 
     //return 0;
+
+    
 
 }
